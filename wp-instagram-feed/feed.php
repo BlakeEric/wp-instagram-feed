@@ -1,0 +1,6 @@
+<?php
+require('settings.php');
+
+
+
+
