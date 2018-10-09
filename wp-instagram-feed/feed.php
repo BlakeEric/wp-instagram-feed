@@ -50,4 +50,18 @@ function myprefix_get_instagram_posts( $count = 5 ) {
   }
 }
 
+/**
+ * Enable AJAX requests
+ */
+add_action( 'wp_enqueue_scripts', 'myprefix_instagram_scripts' );
+
+function myprefix_instagram_scripts() {
+  wp_enqueue_script( 'myprefix_instagram_ajax', plugins_url( '/instagram-ajax.js', __FILE__ ), array('jquery'), '1.0', true );
+
+  wp_localize_script( 'myprefix_instagram_ajax', 'myprefix_instagram', array(
+    'ajax_url' => admin_url( 'admin-ajax.php' )
+  ));
+}
+
+
 
