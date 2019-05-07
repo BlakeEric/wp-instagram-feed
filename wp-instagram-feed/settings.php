@@ -1,38 +1,44 @@
 <?php
 
-//Add an options page
-
-if (is_admin()) {
-  add_action('admin_menu', 'myprefix_instagram_menu');
-  add_action('admin_init', 'myprefix_instagram_register_settings');
+/**
+ * Adds an options page to "Settings" menu
+ */
+function myprefix_instagram_menu() {
+  add_options_page('Instagram Feed', 'Instagram Feed', 'manage_options', 'myprefix_instagram_settings', 'myprefix_instagram_settings_output');
 }
 
-function custom_instagram_menu() {
-	add_options_page('Instagram Feed', 'Instagram Feed', 'manage_options', 'myprefix_instagram_settings', 'myprefix_instagram_settings_output');
-}
-
+/**
+ * Creates array of plugin settings fields
+ */
 function myprefix_instagram_settings() {
-	return array(
+  return array(
     array(
       'name'=> 'myprefix_instagram_access_token',
       'label'=> 'API Access Token'
     ),
-	);
+  );
 }
 
+/**
+ * Adds 'API Access Token' field to
+ * plugin options page
+ */
 function myprefix_instagram_register_settings() {
-	$settings = myprefix_instagram_settings();
-	foreach($settings as $setting) {
-		register_setting('myprefix_instagram_settings', $setting['name']);
-	}
+  $settings = myprefix_instagram_settings();
+  foreach($settings as $setting) {
+  register_setting('myprefix_instagram_settings', $setting['name']);
+  }
 }
 
-
+/**
+ * Prints Settings fields and
+ * instructions for obtaining an API key
+ */
 function myprefix_instagram_settings_output() {
-  
-	$settings = myprefix_instagram_settings();
 
-	echo '<div class="wrap">';
+  $settings = myprefix_instagram_settings();
+
+  echo '<div class="wrap">';
       echo '<h2>Instagram API</h2>';
       echo '<p>' . 'All we need is a registered app and an API token to grab posts from your instagram account.' .'</p>';
       echo '<p>' . 'Most of this configuration can found on the application overview page on the <a target="_blank" href="https://www.instagram.com/developer/">https://www.instagram.com/developer/</a> website.' .'</p>';
@@ -40,20 +46,25 @@ function myprefix_instagram_settings_output() {
       echo '<hr />';
       echo '<form method="post" action="options.php">';
       settings_fields('myprefix_instagram_settings');
-  
+
       echo '<table>';
         foreach($settings as $setting) {
           echo '<tr>';
               echo '<td>'.$setting['label'].'</td>';
               echo '<td><input type="text" style="width: 400px" name="'.$setting['name'].'" value="'.get_option($setting['name']).'" /></td>';
-          echo '</tr>';          
+          echo '</tr>';
         }
       echo '</table>';
-  
+
       submit_button();
-  
+
       echo '</form>';
       echo '<hr />';
-	echo '</div>';
+  echo '</div>';
 
+}
+
+if (is_admin()) {
+  add_action('admin_menu', 'myprefix_instagram_menu');
+  add_action('admin_init', 'myprefix_instagram_register_settings');
 }

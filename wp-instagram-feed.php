@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: WordPress Ajax Instagram Feed
-Description: Get data via ajax using the Instagram API
+Description: Get data asynchronously using the Instagram API
 Version: 1.0.0
 Author: Blake Eric
 Author URI: http://blakeeric.com
