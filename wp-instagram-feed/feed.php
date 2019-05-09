@@ -1,38 +1,56 @@
 <?php
 require('settings.php');
 
-add_action( 'wp_ajax_nopriv_myprefix_get_instagram_posts', 'myprefix_get_instagram_posts' );
-add_action( 'wp_ajax_myprefix_get_instagram_posts', 'myprefix_get_instagram_posts' );
-
+/**
+ * Fetches Instagram posts. Will write posts to local cache to avoid sending 
+ * too many API requests. If cache does not exist or is over 3 hours old will 
+ * fetch new data from API and rewrite to local cache.
+ *
+ * @param integer $count. Optional. The number of posts to retrieve. Default 5.
+ * @return JSON array containing post data. 
+ */
 function myprefix_get_instagram_posts( $count = 5 ) {
-
+  
+  
   if ( !get_option('myprefix_instagram_access_token')) {
     return false;
+  }
+  
+  /**
+   * Set up query options
+   */
+  if ( defined( 'DOING_AJAX' ) && DOING_AJAX ) {
+    $count = $_GET['count'];
   }
 
   $ig_user_id = 'self';
   $token = get_option('myprefix_instagram_access_token'); 
 
-  if ( defined( 'DOING_AJAX' ) && DOING_AJAX ) {
-    $count = $_GET['count'];
-  }
-
-  $data = array(
+  $params = array(
     'access_token' => $token,
     'count' => $count,
   );
-
-  $url = 'https://api.instagram.com/v1/users/' . $ig_user_id . '/media/recent/?' . http_build_query($data);
+  
+  
+  /**
+   * Send GET request to Instagram
+   */
+  $url = 'https://api.instagram.com/v1/users/' . $ig_user_id . '/media/recent/?' . http_build_query($params);
 
   $remote_wp = wp_remote_get( $url );
 
+  /**
+   * Handle API response
+   */
   if ( $remote_wp['response']['code'] == 400 ) {
     return $remote_wp['response']['message'] . ': ' . $instagram_response->meta->error_message;
-    // return false;
   }
 
   $cache_file = __DIR__ . '/.instacache';
 
+  /**
+   * Handle API response
+   */
   if (file_exists($cache_file) && json_decode(file_get_contents($cache_file))->cache_expire > time()) {
     // If the cache is valid return the data
     $data = file_get_contents($cache_file);
@@ -42,6 +60,9 @@ function myprefix_get_instagram_posts( $count = 5 ) {
     file_put_contents( $cache_file, $data );
   }
 
+  /**
+   * Determine if function was called on client or server side and return accordingly
+   */
   if ( defined( 'DOING_AJAX' ) && DOING_AJAX ) {
     echo $data;
     die();
@@ -51,10 +72,8 @@ function myprefix_get_instagram_posts( $count = 5 ) {
 }
 
 /**
- * Enable AJAX requests
+ * Enqueue scripts 
  */
-add_action( 'wp_enqueue_scripts', 'myprefix_instagram_scripts' );
-
 function myprefix_instagram_scripts() {
   wp_enqueue_script( 'myprefix_instagram_ajax', plugins_url( '/instagram-ajax.js', __FILE__ ), array('jquery'), '1.0', true );
 
@@ -63,5 +82,10 @@ function myprefix_instagram_scripts() {
   ));
 }
 
-
+/**
+ * Enable AJAX requests
+ */
+add_action( 'wp_ajax_nopriv_myprefix_get_instagram_posts', 'myprefix_get_instagram_posts' );
+add_action( 'wp_ajax_myprefix_get_instagram_posts', 'myprefix_get_instagram_posts' );
+add_action( 'wp_enqueue_scripts', 'myprefix_instagram_scripts' );
 
