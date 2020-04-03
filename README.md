@@ -1,6 +1,6 @@
 ### A simple WordPress/Instagram API integration
 
-Must-use pliugin that asynchronously generates and caches posts
+Must-use plugin that asynchronously generates and caches posts
 
 __Usage__
 * Drop the contents of this project directly into your mu-plugins directory
